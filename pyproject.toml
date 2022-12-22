@@ -5,7 +5,7 @@ description = ""
 authors = ["altescy <altescy@fastmail.com>"]
 
 [tool.poetry.dependencies]
-python = ">=3.8,<4.0"
+python = ">=3.8,<3.11"
 jax = "^0.4.1"
 jaxlib = "^0.4.1"
 flax = "^0.6.3"
@@ -18,6 +18,9 @@ black = "^22.8.0"
 isort = "^5.10.1"
 flake8 = "^5.0.4"
 mypy = "^0.981"
+
+[tool.poetry.group.dev.dependencies]
+setuptools = "^65.6.3"
 
 [tool.pysen]
 version = "0.10"
