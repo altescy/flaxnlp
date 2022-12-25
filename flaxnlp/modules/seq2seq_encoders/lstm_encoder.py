@@ -1,5 +1,5 @@
 import functools
-from typing import Any, Tuple, cast
+from typing import Any, Optional, Tuple, cast
 
 import flax
 import jax
@@ -91,7 +91,7 @@ class LSTMEncoder(Seq2SeqEncoder):
         self,
         inputs: Array,
         lengths: Array,
-        deterministic: bool,
+        deterministic: Optional[bool] = None,
     ) -> Array:
         for _ in range(self.num_layers):
             inputs = LSTMLayer(hidden_size=self.hidden_size, bidirectional=self.bidirectional)(inputs, lengths)  # type: ignore[no-untyped-call]
