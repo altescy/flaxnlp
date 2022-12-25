@@ -5,7 +5,7 @@ from flaxnlp.modules.seq2seq_encoders.transformer_encoder import TransformerEnco
 
 
 def test_transformer_encoder() -> None:
-    encoder = TransformerEncoder(
+    encoder = TransformerEncoder(  # type: ignore[no-untyped-call]
         input_dim=4,
         num_layers=2,
         num_heads=2,
