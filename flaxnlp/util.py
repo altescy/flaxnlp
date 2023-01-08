@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, List
 
 import jax
 
@@ -51,3 +51,27 @@ def flip_sequences(inputs: Array, lengths: Array) -> Array:
     # a single example.
     max_length = inputs.shape[0]
     return jax.numpy.flip(jax.numpy.roll(inputs, max_length - lengths, axis=0), axis=0)
+
+
+def concat(operation: str, *arrays: Array, axis: int = -1) -> Array:
+    if not operation:
+        raise ValueError("operation must be specified")
+    results: List[Array] = []
+    for suboperation in operation.split(";"):
+        if "*" in suboperation:
+            lop, rop = suboperation.split("*", 1)
+            results.append(concat(lop, *arrays, axis=axis) * concat(rop, *arrays, axis=axis))
+        elif "/" in suboperation:
+            lop, rop = suboperation.split("/", 1)
+            results.append(concat(lop, *arrays, axis=axis) / concat(rop, *arrays, axis=axis))
+        elif "+" in suboperation:
+            lop, rop = suboperation.split("+", 1)
+            results.append(concat(lop, *arrays, axis=axis) + concat(rop, *arrays, axis=axis))
+        elif "-" in suboperation:
+            lop, rop = suboperation.split("-", 1)
+            results.append(concat(lop, *arrays, axis=axis) - concat(rop, *arrays, axis=axis))
+        elif suboperation.isdigit():
+            results.append(arrays[int(suboperation)])
+        else:
+            raise ValueError(f"Invalid operation: {suboperation}")
+    return jax.numpy.concatenate(results, axis=axis)
