@@ -1,5 +1,6 @@
-from typing import Any, List
+from typing import Any, Callable, List, Optional, cast
 
+import flax
 import jax
 
 Array = Any
@@ -75,3 +76,13 @@ def concat(operation: str, *arrays: Array, axis: int = -1) -> Array:
         else:
             raise ValueError(f"Invalid operation: {suboperation}")
     return jax.numpy.concatenate(results, axis=axis)
+
+
+def stop_gradient(
+    variables: Any,
+    filter_fn: Optional[Callable[[str], bool]] = None,
+) -> Any:
+    filter_fn = filter_fn or (lambda _: True)
+    flat_vars = flax.traverse_util.flatten_dict(variables)  # type: ignore[no-untyped-call]
+    new_vars = {k: jax.lax.stop_gradient(v) if filter_fn(k) else v for k, v in flat_vars.items()}
+    return flax.traverse_util.unflatten_dict(new_vars)  # type: ignore[no-untyped-call]
