@@ -2,6 +2,7 @@ import jax
 import numpy
 
 from flaxnlp.modules.seq2seq_encoders.transformer_encoder import TransformerEncoder
+from flaxnlp.util import sequence_mask
 
 
 def test_transformer_encoder() -> None:
@@ -13,7 +14,7 @@ def test_transformer_encoder() -> None:
     )
 
     inputs = numpy.random.RandomState(0).normal(size=(2, 3, 4))
-    lengths = numpy.array([3, 2])
+    mask = sequence_mask(numpy.array([3, 2]))
 
-    outputs, _ = encoder.init_with_output(jax.random.PRNGKey(0), inputs, lengths, deterministic=True)
+    outputs, _ = encoder.init_with_output(jax.random.PRNGKey(0), inputs, mask, deterministic=True)
     assert outputs.shape == (2, 3, 4)
