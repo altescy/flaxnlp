@@ -57,9 +57,10 @@ class LSTMLayer(flax.linen.Module):
     def __call__(
         self,
         inputs: Array,
-        lengths: Array,
+        mask: Array,
     ) -> Array:
         batch_size = inputs.shape[0]
+        lengths = jax.numpy.sum(mask, axis=1)
 
         # Forward LSTM.
         initial_state = SimpleLSTM.initialize_carry((batch_size,), self.hidden_size)
@@ -90,10 +91,10 @@ class LSTMEncoder(Seq2SeqEncoder):
     def __call__(
         self,
         inputs: Array,
-        lengths: Array,
+        mask: Array,
         deterministic: Optional[bool] = None,
     ) -> Array:
         for _ in range(self.num_layers):
-            inputs = LSTMLayer(hidden_size=self.hidden_size, bidirectional=self.bidirectional)(inputs, lengths)  # type: ignore[no-untyped-call]
+            inputs = LSTMLayer(hidden_size=self.hidden_size, bidirectional=self.bidirectional)(inputs, mask)  # type: ignore[no-untyped-call]
             inputs = flax.linen.Dropout(rate=self.dropout, deterministic=deterministic)(inputs)  # type: ignore[no-untyped-call]
         return inputs

@@ -4,7 +4,6 @@ import flax
 import jax
 
 from flaxnlp.modules.seq2vec_encoders.seq2vec_encoder import Seq2VecEncoder
-from flaxnlp.util import sequence_mask
 
 Array = Any
 
@@ -33,10 +32,9 @@ class CnnSeq2VecEncoder(Seq2VecEncoder):
     def __call__(
         self,
         inputs: Array,
-        lengths: Array,
+        mask: Array,
         deterministic: Optional[bool] = None,
     ) -> Array:
-        mask = sequence_mask(lengths, inputs.shape[1])
         inputs = inputs * mask[:, :, None]
         output = jax.numpy.concatenate(
             [

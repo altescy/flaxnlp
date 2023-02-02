@@ -11,7 +11,7 @@ class Seq2SeqEncoder(abc.ABC, flax.linen.Module):
     def __call__(
         self,
         inputs: Array,
-        lengths: Array,
+        mask: Array,
         deterministic: Optional[bool] = None,
     ) -> Array:
         raise NotImplementedError

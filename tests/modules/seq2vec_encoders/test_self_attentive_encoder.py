@@ -2,6 +2,7 @@ import jax
 import numpy
 
 from flaxnlp.modules.seq2vec_encoders.self_attentive_encoder import SelfAttentievEncoder
+from flaxnlp.util import sequence_mask
 
 
 def test_self_attentive_encoder() -> None:
@@ -12,7 +13,7 @@ def test_self_attentive_encoder() -> None:
 
     rng = jax.random.PRNGKey(0)
     inputs = numpy.random.RandomState(0).randn(2, 3, 4)
-    lengths = numpy.array([3, 2], dtype=numpy.int32)
-    output, _ = encoder.init_with_output(rng, inputs, lengths, deterministic=True)
+    mask = sequence_mask(numpy.array([3, 2], dtype=numpy.int32))
+    output, _ = encoder.init_with_output(rng, inputs, mask, deterministic=True)
 
     assert output.shape == (2, 2)
