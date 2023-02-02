@@ -6,7 +6,7 @@ import jax
 Array = Any
 
 
-def sequence_mask(lengths: Array, max_length: int) -> Array:
+def sequence_mask(lengths: Array, max_length: Optional[int] = None) -> Array:
     """Computes a boolean mask over sequence positions for each given length.
     Example:
     ```
@@ -21,6 +21,8 @@ def sequence_mask(lengths: Array, max_length: int) -> Array:
       A mask with shape: <bool>[batch_size, max_length] indicating which
       positions are valid for each sequence.
     """
+    if max_length is None:
+        max_length = lengths.max()
     return jax.numpy.arange(max_length)[None] < lengths[:, None]
 
 

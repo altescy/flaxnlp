@@ -2,7 +2,6 @@ from typing import Any, Callable, Optional
 
 import flax
 
-from flaxnlp import util
 from flaxnlp.modules.feedforward import FeedForward
 from flaxnlp.modules.seq2seq_encoders.seq2seq_encoder import Seq2SeqEncoder
 
@@ -54,11 +53,10 @@ class TransformerEncoder(Seq2SeqEncoder):
     def __call__(
         self,
         inputs: Array,
-        lengths: Array,
+        mask: Array,
         deterministic: Optional[bool] = None,
     ) -> Array:
-        sequence_mask = util.sequence_mask(lengths, inputs.shape[1])
-        attention_mask = flax.linen.make_attention_mask(sequence_mask, sequence_mask)  # type: ignore[no-untyped-call]
+        attention_mask = flax.linen.make_attention_mask(mask, mask)  # type: ignore[no-untyped-call]
         for _ in range(self.num_layers):
             inputs = TransformerLayer(  # type: ignore[no-untyped-call]
                 input_dim=self.input_dim,

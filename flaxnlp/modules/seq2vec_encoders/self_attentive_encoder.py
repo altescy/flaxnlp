@@ -3,7 +3,6 @@ from typing import Any, Optional
 import flax
 import jax
 
-from flaxnlp import util
 from flaxnlp.modules.seq2vec_encoders.seq2vec_encoder import Seq2VecEncoder
 
 Array = Any
@@ -16,9 +15,8 @@ class KeysOnlyMlpAttention(flax.linen.Module):
     def __call__(
         self,
         inputs: Array,
-        lengths: Array,
+        mask: Array,
     ) -> Array:
-        mask = util.sequence_mask(lengths, inputs.shape[1])
         hidden = flax.linen.Dense(  # type: ignore[no-untyped-call]
             self.hidden_dim,
             name="key",
@@ -48,13 +46,13 @@ class SelfAttentievEncoder(Seq2VecEncoder):
     def __call__(
         self,
         inputs: Array,
-        lengths: Array,
+        mask: Array,
         deterministic: Optional[bool] = None,
     ) -> Array:
         attention = KeysOnlyMlpAttention(  # type: ignore[no-untyped-call]
             self.hidden_dim,
             name="attention",
-        )(inputs, lengths)
+        )(inputs, mask)
         output = jax.numpy.einsum("bld,bl->bd", inputs, attention)  # type: ignore[no-untyped-call]
 
         if self.output_dim is not None:
