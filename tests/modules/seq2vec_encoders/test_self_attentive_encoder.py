@@ -1,12 +1,12 @@
 import jax
 import numpy
 
-from flaxnlp.modules.seq2vec_encoders.self_attentive_encoder import SelfAttentievEncoder
+from flaxnlp.modules.seq2vec_encoders.self_attentive_encoder import SelfAttentiveEncoder
 from flaxnlp.util import sequence_mask
 
 
 def test_self_attentive_encoder() -> None:
-    encoder = SelfAttentievEncoder(  # type: ignore[no-untyped-call]
+    encoder = SelfAttentiveEncoder(  # type: ignore[no-untyped-call]
         hidden_dim=3,
         output_dim=2,
     )
