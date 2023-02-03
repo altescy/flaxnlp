@@ -45,6 +45,7 @@ class TransformerEncoder(Seq2SeqEncoder):
     num_layers: int
     num_heads: int
     hidden_dim: int
+    causal: bool = False
     dropout: float = 0.1
     layernorm_epsilon: float = 1e-6
     activation: Callable[[Array], Array] = flax.linen.relu
@@ -56,7 +57,10 @@ class TransformerEncoder(Seq2SeqEncoder):
         mask: Array,
         deterministic: Optional[bool] = None,
     ) -> Array:
-        attention_mask = flax.linen.make_attention_mask(mask, mask)  # type: ignore[no-untyped-call]
+        if self.causal:
+            attention_mask = flax.linen.make_causal_mask(mask)  # type: ignore[no-untyped-call]
+        else:
+            attention_mask = flax.linen.make_attention_mask(mask, mask)  # type: ignore[no-untyped-call]
         for _ in range(self.num_layers):
             inputs = TransformerLayer(  # type: ignore[no-untyped-call]
                 input_dim=self.input_dim,
