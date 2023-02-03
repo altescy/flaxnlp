@@ -7,11 +7,12 @@ from typing import Any, Dict
 
 import colt
 import datasets
+import jax
 from collatable.extras.dataloader import DataLoader
 from datautil import ImdbDataModule
 from flax.training import checkpoints
+from flax.training.train_state import TrainState
 from model import TextClassifier
-from train import TrainState
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +61,7 @@ def main() -> None:
     accuracy = Accuracy()
     dataloader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False, drop_last=False)
     for b, batch in enumerate(dataloader, start=1):
-        output = classifier.apply(state["params"], train=False, **batch)
+        output = classifier.apply(variables=state["params"], train=False, **batch)
         logits = output["logits"]
         pred = logits.argmax(axis=-1)
         gold = batch["label"]

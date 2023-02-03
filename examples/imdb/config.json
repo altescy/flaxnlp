@@ -23,11 +23,18 @@
     "dropout": 0.2
   },
   "trainer": {
-    "batch_size": 128,
-    "num_epochs": 4,
+    "max_epochs": 4,
+    "train_dataloader": {
+      "@type": "flaxnlp.dataloader.DataLoader",
+      "collate_fn": {
+        "@type": "datautil.Collator"
+      },
+      "shuffle": true,
+      "drop_last": true,
+      "batch_size": 128
+    },
     "optimizer": {
-      "@type": "optax",
-      "name": "adamw",
+      "@type": "optax.adamw",
       "learning_rate": 0.001
     }
   }

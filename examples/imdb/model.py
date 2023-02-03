@@ -1,10 +1,11 @@
-from typing import Any, Dict, Optional, cast
+from typing import Any, ClassVar, Dict, Optional, cast
 
 import colt
 import flax
 import optax
 from colt import Lazy
 
+from flaxnlp.models.model import Model
 from flaxnlp.modules.seq2seq_encoders.seq2seq_encoder import Seq2SeqEncoder
 from flaxnlp.modules.seq2vec_encoders.seq2vec_encoder import Seq2VecEncoder
 from flaxnlp.modules.token_embedders.token_embedder import TokenEmbedder
@@ -13,7 +14,9 @@ from flaxnlp.util import sequence_mask
 Array = Any
 
 
-class TextClassifier(flax.linen.Module):  # type: ignore[misc]
+class TextClassifier(Model):  # type: ignore[misc]
+    required_rngkeys: ClassVar = {"dropout"}
+
     vocab_size: int
     num_classes: int
     embedder_config: Lazy[TokenEmbedder]
@@ -37,13 +40,13 @@ class TextClassifier(flax.linen.Module):  # type: ignore[misc]
         if self.contextualizer_config is not None:
             self.contextualizer = self.contextualizer_config.construct()
 
-    def __call__(
+    def __call__(  # type: ignore[override]
         self,
         text: Dict[str, Any],
         label: Optional[Array],
         *,
         train: bool = False,
-    ) -> Dict[str, Array]:
+    ) -> Dict[str, Any]:
         deterministic = flax.linen.module.merge_param("deterministic", self.deterministic, not train)
         mask = self.get_mask_from_text(text)
         embeddings = self.embedder(deterministic=deterministic, **text)
@@ -54,5 +57,7 @@ class TextClassifier(flax.linen.Module):  # type: ignore[misc]
         output = {"logits": logits}
         if label is not None:
             loss = optax.softmax_cross_entropy_with_integer_labels(logits, label).mean()
+            accuracy = (logits.argmax(-1) == label).mean()
             output["loss"] = loss
+            output["metrics"] = {"accuracy": accuracy}
         return output
