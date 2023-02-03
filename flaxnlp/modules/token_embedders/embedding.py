@@ -22,7 +22,7 @@ class TokenDropout(flax.linen.Module):
     @flax.linen.compact
     def __call__(self, inputs: Array, deterministic: Optional[bool] = None) -> Array:
         deterministic = flax.linen.module.merge_param("deterministic", self.deterministic, deterministic)
-        if deterministic or self.dropout_rate == 0.0:
+        if deterministic or self.dropout == 0.0:
             return inputs
         rng = self.make_rng("dropout")
         mask = jax.random.bernoulli(rng, p=self.dropout, shape=inputs.shape)
@@ -54,7 +54,12 @@ class Embedding(TokenEmbedder):
             unknown_index=self.unknown_index,
         )
 
-    def __call__(self, inputs: Array, deterministic: Optional[bool] = None) -> Array:
+    def __call__(
+        self,
+        token_ids: Array,
+        deterministic: Optional[bool] = None,
+        **kwargs: Any,
+    ) -> Array:
         """Embeds the input sequences and applies word dropout and dropout.
         Args:
           inputs: Batch of input token ID sequences <int64>[batch_size, seq_length].
@@ -64,8 +69,8 @@ class Embedding(TokenEmbedder):
           embedding_size].
         """
         deterministic = flax.linen.module.merge_param("deterministic", self.deterministic, deterministic)
-        inputs = self.token_dropout_layer(inputs, deterministic=deterministic)
-        embeddings = self.embedding[inputs]
+        token_ids = self.token_dropout_layer(token_ids, deterministic=deterministic)
+        embeddings = self.embedding[token_ids]
 
         if self.frozen:
             embeddings = jax.lax.stop_gradient(embeddings)
