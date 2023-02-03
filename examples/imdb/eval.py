@@ -44,9 +44,7 @@ def main() -> None:
         config = json.load(jsonfile)
 
     logger.info("Loading datamodule...")
-    with args.datamodule.open("rb") as f:
-        datamodule = pickle.load(f)
-        assert isinstance(datamodule, ImdbDataModule)
+    datamodule = ImdbDataModule.load(args.datamodule)
 
     logger.info("Loading model...")
     classifier = colt.build(config["model"], colt.Lazy[TextClassifier]).construct(

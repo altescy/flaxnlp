@@ -1,10 +1,8 @@
 import argparse
-import functools
 import json
 import logging
-from os import PathLike
 from pathlib import Path
-from typing import Any, Callable, Dict, Iterable, Iterator, List, Optional, Sequence, Tuple, TypeVar, Union, cast
+from typing import Any, Dict, TypeVar, cast
 
 import collatable
 import colt
@@ -17,8 +15,7 @@ from clu import metrics
 from collatable import Instance, LabelField, TextField
 from collatable.extras.dataloader import DataLoader
 from collatable.extras.dataset import Dataset
-from collatable.extras.indexer import TokenIndexer
-from datautil import ImdbDataModule, WhitespaceTokenizer
+from datautil import ImdbDataModule
 from flax import struct
 from flax.training import checkpoints, train_state
 from flax.training.common_utils import shard
@@ -26,7 +23,6 @@ from model import TextClassifier
 
 logger = logging.getLogger(__name__)
 
-T = TypeVar("T")
 Array = Any
 
 
