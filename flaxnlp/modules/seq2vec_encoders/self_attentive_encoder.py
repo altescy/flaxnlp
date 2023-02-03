@@ -38,7 +38,7 @@ class KeysOnlyMlpAttention(flax.linen.Module):
         return scores
 
 
-class SelfAttentievEncoder(Seq2VecEncoder):
+class SelfAttentiveEncoder(Seq2VecEncoder):
     hidden_dim: int
     output_dim: Optional[int] = None
 
