@@ -154,6 +154,8 @@ def main() -> None:
 
     logger.info("Saving model...")
     args.output.mkdir(parents=True, exist_ok=True)
+    with open(args.output / "config.json", "w") as jsonfile:
+        json.dump(config, jsonfile, indent=2, ensure_ascii=False)
     datamodule.save(args.output / "datamodule.pkl")
     checkpoints.save_checkpoint(ckpt_dir=args.output / "checkpoints", target=state, step=0, overwrite=True)
 

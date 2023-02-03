@@ -33,8 +33,8 @@ class Accuracy:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--config", type=Path, default=Path("config.json"))
     parser.add_argument("--subset", choices=["train", "test"], default="test")
+    parser.add_argument("--config", type=Path, default=Path("output/config.json"))
     parser.add_argument("--datamodule", type=Path, default=Path("output/datamodule.pkl"))
     parser.add_argument("--checkpoint", type=Path, default=Path("output/checkpoints/"))
     parser.add_argument("--batch-size", type=int, default=128)
