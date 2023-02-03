@@ -110,7 +110,7 @@ class Trainer:
                             for batch in valbar:
                                 num_val_batches += 1
                                 rngs, val_rngs = model.split_rngs(rngs, train=False)
-                                outputs = jax.jit(state.apply_fn)(variabls=state.params, train=False, **batch)
+                                outputs = state.apply_fn(variabls=state.params, train=False, **batch)
                                 batch_metrics = {"loss": outputs["loss"], **outputs.get("metrics", {})}
                                 for key, value in batch_metrics.items():
                                     val_metrics[key] = val_metrics.get(key, 0) + value
