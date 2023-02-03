@@ -1,0 +1,6 @@
+clu
+colt
+collatable
+datasets
+git+https://github.com/altescy/flaxnlp.git
+git+https://github.com/altescy/collatable.git

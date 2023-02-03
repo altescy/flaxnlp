@@ -1,0 +1,34 @@
+{
+  "datamodule": {
+    "tokenizer": {
+      "@type": "whitespace"
+    },
+    "token_indexer": {
+      "@type": "single_id",
+      "min_df": 5,
+      "max_df": 0.9
+    }
+  },
+  "model": {
+    "embedder_config": {
+      "@type": "flaxnlp.modules.token_embedders.embedding.Embedding",
+      "embedding_dim": 64
+    },
+    "vectorizer_config": {
+      "@type": "flaxnlp.modules.seq2vec_encoders.cnn_encoder.CnnSeq2VecEncoder",
+      "num_filters": 16,
+      "ngram_filter_sizes": [2, 3, 4, 5],
+      "output_size": 64
+    },
+    "dropout": 0.2
+  },
+  "trainer": {
+    "batch_size": 128,
+    "num_epochs": 4,
+    "optimizer": {
+      "@type": "optax",
+      "name": "adamw",
+      "learning_rate": 0.001
+    }
+  }
+}
