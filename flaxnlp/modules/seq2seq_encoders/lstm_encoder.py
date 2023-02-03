@@ -47,7 +47,7 @@ class SimpleLSTM(flax.linen.Module):
 class LSTMLayer(flax.linen.Module):
     """A simple bi-directional LSTM."""
 
-    hidden_size: int
+    hidden_dim: int
     bidirectional: bool
 
     def setup(self) -> None:
@@ -63,13 +63,13 @@ class LSTMLayer(flax.linen.Module):
         lengths = jax.numpy.sum(mask, axis=1)
 
         # Forward LSTM.
-        initial_state = SimpleLSTM.initialize_carry((batch_size,), self.hidden_size)
+        initial_state = SimpleLSTM.initialize_carry((batch_size,), self.hidden_dim)
         _, outputs = self.forward_lstm(initial_state, inputs)
 
         # Backward LSTM.
         if self.backward_lstm is not None:
             reversed_inputs = util.flip_sequences(inputs, lengths)
-            initial_state = SimpleLSTM.initialize_carry((batch_size,), self.hidden_size)
+            initial_state = SimpleLSTM.initialize_carry((batch_size,), self.hidden_dim)
             _, backward_outputs = self.backward_lstm(initial_state, reversed_inputs)
             backward_outputs = util.flip_sequences(backward_outputs, lengths)
 
@@ -82,7 +82,7 @@ class LSTMLayer(flax.linen.Module):
 class LSTMEncoder(Seq2SeqEncoder):
     """A multi-layer LSTM encoder."""
 
-    hidden_size: int
+    hidden_dim: int
     num_layers: int
     bidirectional: bool = False
     dropout: float = 0.0
@@ -95,6 +95,6 @@ class LSTMEncoder(Seq2SeqEncoder):
         deterministic: Optional[bool] = None,
     ) -> Array:
         for _ in range(self.num_layers):
-            inputs = LSTMLayer(hidden_size=self.hidden_size, bidirectional=self.bidirectional)(inputs, mask)  # type: ignore[no-untyped-call]
+            inputs = LSTMLayer(hidden_dim=self.hidden_dim, bidirectional=self.bidirectional)(inputs, mask)  # type: ignore[no-untyped-call]
             inputs = flax.linen.Dropout(rate=self.dropout, deterministic=deterministic)(inputs)  # type: ignore[no-untyped-call]
         return inputs
