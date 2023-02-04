@@ -19,6 +19,12 @@ class CharacterTokenizer(Tokenizer):
         return list(text)
 
 
+@Tokenizer.register("whitespace")
+class WhitespaceTokenizer(Tokenizer):
+    def __call__(self, text: str) -> List[str]:
+        return text.split()
+
+
 class TokenIndexerBuilder(colt.Registrable):  # type: ignore[misc]
     def __call__(self, documents: Iterable[Sequence[str]]) -> TokenIndexer[str]:
         raise NotImplementedError
