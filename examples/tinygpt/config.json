@@ -1,0 +1,33 @@
+{
+  "datamodule": {
+    "tokenizer": {
+      "@type": "character"
+    },
+    "token_indexer": {
+      "@type": "single_id"
+    }
+  },
+  "model": {
+    "embedding_dim": 64,
+    "hidden_dim": 128,
+    "num_heads": 4,
+    "num_layers": 4,
+    "dropout": 0.2
+  },
+  "trainer": {
+    "max_epochs": 200,
+    "train_dataloader": {
+      "@type": "flaxnlp.dataloader.DataLoader",
+      "collate_fn": {
+        "@type": "collatable.Collator"
+      },
+      "shuffle": true,
+      "drop_last": true,
+      "batch_size": 128
+    },
+    "optimizer": {
+      "@type": "optax.adamw",
+      "learning_rate": 1e-4
+    }
+  }
+}

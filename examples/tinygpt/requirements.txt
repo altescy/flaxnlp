@@ -1,0 +1,4 @@
+collatable
+colt
+tensorflow
+git+https://github.com/altescy/flaxnlp.git
