@@ -80,15 +80,18 @@ class GPT(Model):
         temperature: float = 1.0,
     ) -> Array:
         @jax.jit
-        def predict(variables: Any, token_ids: Array) -> Any:
+        def sample(rng: Any, variables: Any, token_ids: Array) -> Array:
             source = {"token_ids": token_ids, "mask": jax.numpy.ones_like(token_ids)}
             logits = self.apply(variables=variables, train=False, source=source)["logits"][:, -1, :]  # type: ignore
             logits = logits / temperature
-            return logits
+            if topk is not None:
+                v = jax.numpy.sort(logits, axis=-1)[:, ::-1][:, :topk]
+                logits = jax.numpy.where(logits < v[:, [-1]], -jax.numpy.inf, logits)
+            new_token_ids = jax.random.categorical(rng, logits)
+            return new_token_ids
 
         for _ in range(max_new_tokens):
             rngs, subrng = jax.random.split(rngs)
-            logits = predict(params, token_ids)
-            new_token_ids = jax.random.categorical(subrng, logits)
+            new_token_ids = sample(subrng, params, token_ids)
             token_ids = jax.numpy.concatenate([token_ids, new_token_ids[None, :]], axis=-1)
         return token_ids
