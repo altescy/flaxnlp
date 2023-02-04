@@ -3,7 +3,7 @@ import itertools
 import json
 import logging
 from pathlib import Path
-from typing import Iterator
+from typing import Iterable, Iterator
 
 import colt
 from collatable.extras.dataset import Dataset
@@ -22,10 +22,21 @@ class DatasetGenerator:
             yield f"{x} + {y} = {x + y}"
 
 
+class DatasetReader:
+    def __init__(self, filename: Path) -> None:
+        self._filename = filename
+
+    def __iter__(self) -> Iterator[str]:
+        with open(self._filename, "r") as f:
+            for line in f:
+                yield line.strip()
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", type=Path, default=Path("config.json"))
     parser.add_argument("--output", type=Path, default=Path("output"))
+    parser.add_argument("--from-file", type=Path, default=None)
     args = parser.parse_args()
 
     logger.info("Loading config from %s", args.config)
@@ -35,12 +46,13 @@ def main() -> None:
     args.output.mkdir(parents=True, exist_ok=True)
 
     logger.info("Loading dataset...")
+    dataset: Iterable[str]
+    if args.from_file is None:
+        dataset = DatasetGenerator()
+    else:
+        dataset = DatasetReader(args.from_file)
     datamodule = colt.build(config["datamodule"], GptDataModule)
-    datamodule.read_dataset(
-        DatasetGenerator(),
-        train=True,
-        path=args.output / "dataset",
-    )
+    datamodule.read_dataset(dataset, train=True, path=args.output / "dataset")
 
     logger.info("Saving datamodule to %s", args.output)
     datamodule.save(args.output / "datamodule.pkl")
