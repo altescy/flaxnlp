@@ -1,7 +1,5 @@
 from typing import Any
 
-from tranformers import FlaxAutoModel
-
 from flaxnlp.modules.token_embedders.token_embedder import TokenEmbedder
 
 Array = Any
@@ -11,6 +9,8 @@ class PretrainedTransformerEmbedder(TokenEmbedder):
     model_name: str
 
     def setup(self) -> None:
+        from tranformers import FlaxAutoModel
+
         self.transformer = FlaxAutoModel.from_pretrained(self.model_name)
 
     def __call__(self, **inputs: Any) -> Array:
