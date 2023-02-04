@@ -9,11 +9,6 @@ from collatable.extras.dataset import Dataset
 from collatable.extras.indexer import TokenIndexer
 
 
-class Collator:
-    def __call__(self, instances: Sequence[Instance]) -> Dict[str, Any]:
-        return collatable.collate(instances)  # type: ignore[no-any-return]
-
-
 class TokenIndexerBuilder(colt.Registrable):  # type: ignore[misc]
     def __call__(self, documents: Iterable[Sequence[str]]) -> TokenIndexer[str]:
         raise NotImplementedError
