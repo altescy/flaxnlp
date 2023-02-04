@@ -51,11 +51,6 @@ class Trainer:
             state = state.apply_gradients(grads=grads)  # type: ignore[no-untyped-call]
             return state, loss
 
-        train_dataloader = self.train_dataloader(train_dataset)
-        val_dataloader = (
-            self.val_dataloader(val_dataset) if val_dataset is not None and self.val_dataloader is not None else None
-        )
-
         rngs, init_rngs = model.split_rngs(rngs, additional_keys={"params"}, train=True)
         params = model.init(
             rngs=init_rngs,
@@ -77,6 +72,7 @@ class Trainer:
                     epochbar.set_description(f"Epoch {epoch}")
                     num_train_batches = 0
                     train_metrics: Dict[str, float] = {}
+                    train_dataloader = self.train_dataloader(train_dataset)
                     with tqdm(train_dataloader, desc="Training", position=1, leave=False) as trainbar:
                         for inputs in trainbar:
                             num_train_batches += 1
@@ -104,8 +100,9 @@ class Trainer:
                     train_metrics = {key: value / num_train_batches for key, value in train_metrics.items()}
 
                     val_metrics: Dict[str, float] = {}
-                    if val_dataloader is not None:
+                    if val_dataset is not None and self.val_dataloader is not None:
                         num_val_batches = 0
+                        val_dataloader = self.val_dataloader(val_dataset)
                         with tqdm(val_dataloader, desc="Validation", position=1, leave=False) as valbar:
                             for batch in valbar:
                                 num_val_batches += 1
