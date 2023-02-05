@@ -66,6 +66,7 @@ class Trainer:
         for callback in self.callbacks:
             callback.on_start(self, state)
 
+        training_step = 0
         try:
             with tqdm(range(1, self.max_epochs + 1), position=0) as epochbar:
                 for epoch in epochbar:
@@ -79,6 +80,8 @@ class Trainer:
                             rngs, train_rngs = model.split_rngs(rngs, train=True)
                             state, loss = train_step(train_rngs, state, inputs)
 
+                            training_step += 1
+
                             batch_metrics = {"loss": loss}
                             for key, value in batch_metrics.items():
                                 train_metrics[key] = train_metrics.get(key, 0) + value
@@ -90,6 +93,7 @@ class Trainer:
                                     batch_inputs=inputs,
                                     batch_outputs={"loss": loss},
                                     epoch=epoch,
+                                    training_step=training_step,
                                     is_training=True,
                                 )
 
@@ -119,6 +123,7 @@ class Trainer:
                                         batch_inputs=batch,
                                         batch_outputs=outputs,
                                         epoch=epoch,
+                                        training_step=training_step,
                                         is_training=False,
                                     )
 
