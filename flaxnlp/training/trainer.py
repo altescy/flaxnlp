@@ -36,6 +36,7 @@ class Trainer:
         model: Model,
         train_dataset: Sequence,
         val_dataset: Optional[Sequence] = None,
+        state: Optional[TrainState] = None,
     ) -> TrainState:
         if val_dataset is not None and self.val_dataloader is None:
             raise ValueError("val_dataloader must be provided if val_dataset is provided")
@@ -51,17 +52,20 @@ class Trainer:
             state = state.apply_gradients(grads=grads)  # type: ignore[no-untyped-call]
             return state, loss
 
-        rngs, init_rngs = model.split_rngs(rngs, additional_keys={"params"}, train=True)
-        params = model.init(
-            rngs=init_rngs,
-            train=True,
-            **next(self.train_dataloader(train_dataset)),
-        )
-        state = TrainState.create(  # type: ignore[no-untyped-call]
-            apply_fn=model.apply,
-            params=params,
-            tx=self.optimizer,
-        )
+        if state is None:
+            rngs, init_rngs = model.split_rngs(rngs, additional_keys={"params"}, train=True)
+            params = model.init(
+                rngs=init_rngs,
+                train=True,
+                **next(self.train_dataloader(train_dataset)),
+            )
+            state = TrainState.create(  # type: ignore[no-untyped-call]
+                apply_fn=model.apply,
+                params=params,
+                tx=self.optimizer,
+            )
+        else:
+            logger.info("Use given train state")
 
         for callback in self.callbacks:
             callback.on_start(self, state)
