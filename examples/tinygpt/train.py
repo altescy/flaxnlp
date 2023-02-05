@@ -2,6 +2,7 @@ import argparse
 import json
 import logging
 from pathlib import Path
+from typing import Any, Dict
 
 import colt
 import jax
@@ -10,7 +11,7 @@ from datautil import GptDataModule
 from flax.training import checkpoints
 from model import GPT
 
-from flaxnlp.training.trainer import Trainer
+from flaxnlp.training.trainer import Trainer, TrainState
 
 logger = logging.getLogger(__name__)
 
@@ -19,16 +20,22 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", type=Path, default=Path("config.json"))
     parser.add_argument("--output", type=Path, default=Path("output"))
-    parser.add_argument("--dataset", type=Path, default=Path("output/dataset"))
-    parser.add_argument("--datamodule", type=Path, default=Path("output/datamodule.pkl"))
+    parser.add_argument("--dataset", type=Path, default=None)
+    parser.add_argument("--datamodule", type=Path, default=None)
+    parser.add_argument("--checkpoint", type=Path, default=None)
+    parser.add_argument("--restore", action="store_true")
     args = parser.parse_args()
+
+    dataset_filename = args.dataset or (args.output / "dataset")
+    datamodule_filename = args.datamodule or (args.output / "datamodule.pkl")
+    checkpoint_filename = args.checkpoint or (args.output / "checkpoints")
 
     with args.config.open("r") as jsonfile:
         config = json.load(jsonfile)
 
     logger.info("Loading dataset...")
-    datamodule = GptDataModule.load(args.datamodule)
-    dataset = Dataset(args.dataset)
+    datamodule = GptDataModule.load(datamodule_filename)
+    dataset = Dataset(dataset_filename)
 
     logger.info("Building model...")
     model = colt.build(config["model"], colt.Lazy[GPT]).construct(vocab_size=datamodule.vocab_size)
@@ -42,7 +49,7 @@ def main() -> None:
     logger.info("Saving model...")
     with open(args.output / "config.json", "w") as jsonfile:
         json.dump(config, jsonfile, indent=2, ensure_ascii=False)
-    checkpoints.save_checkpoint(ckpt_dir=args.output / "checkpoints", target=state, step=0, overwrite=True)
+    checkpoints.save_checkpoint(ckpt_dir=checkpoint_filename, target=state, step=0, overwrite=True)
 
 
 if __name__ == "__main__":

@@ -16,33 +16,42 @@ from flaxnlp.training.trainer import Trainer
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", type=Path, default=Path("config.json"))
-    parser.add_argument("--checkpoint", type=Path, default=Path("output/checkpoints"))
-    parser.add_argument("--datamodule", type=Path, default=Path("output/datamodule.pkl"))
+    parser.add_argument("--artifact", type=Path, default=Path("output"))
+    parser.add_argument("--checkpoint", type=Path, default=None)
+    parser.add_argument("--datamodule", type=Path, default=None)
     parser.add_argument("--topk", type=int, default=1)
     parser.add_argument("--temperature", type=float, default=1.0)
+    parser.add_argument("--max-new-tokens", type=int, default=10)
     args = parser.parse_args()
 
-    with args.config.open("r") as jsonfile:
+    config_filename = args.artifact / "config.json"
+    checkpoint_filename = args.checkpoint or (args.artifact / "checkpoints")
+    datamodule_filename = args.datamodule or (args.artifact / "datamodule.pkl")
+
+    with config_filename.open("r") as jsonfile:
         config = json.load(jsonfile)
 
     print("Loading datmodule...")
-    datamodule = GptDataModule.load(args.datamodule)
+    datamodule = GptDataModule.load(datamodule_filename)
 
     print("Loading model...")
     model = colt.build(config["model"], colt.Lazy[GPT]).construct(vocab_size=datamodule.vocab_size)
-    state = checkpoints.restore_checkpoint(ckpt_dir=args.checkpoint, target=None)
+    state = checkpoints.restore_checkpoint(ckpt_dir=checkpoint_filename, target=None)
 
     assert datamodule.token_indexer is not None
+
+    rngs = jax.random.PRNGKey(0)
 
     with suppress(KeyboardInterrupt, EOFError):
         while True:
             text = input("Enter text: ")
+            rngs, subrng = jax.random.split(rngs)
             token_ids = datamodule.token_indexer(datamodule.tokenizer(text))["token_ids"][None, :]
             token_ids = model.generate(
-                rngs=jax.random.PRNGKey(0),
+                rngs=subrng,
                 params=state["params"],
                 token_ids=token_ids,
-                max_new_tokens=10,
+                max_new_tokens=args.max_new_tokens,
                 topk=args.topk,
                 temperature=args.temperature,
             )[0]
