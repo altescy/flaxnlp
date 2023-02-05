@@ -19,7 +19,7 @@ def main() -> None:
     parser.add_argument("--artifact", type=Path, default=Path("output"))
     parser.add_argument("--checkpoint", type=Path, default=None)
     parser.add_argument("--datamodule", type=Path, default=None)
-    parser.add_argument("--topk", type=int, default=1)
+    parser.add_argument("--topk", type=int, default=None)
     parser.add_argument("--temperature", type=float, default=1.0)
     parser.add_argument("--max-new-tokens", type=int, default=10)
     args = parser.parse_args()
