@@ -67,6 +67,8 @@ class Trainer:
         else:
             logger.info("Use given train state")
 
+        assert state is not None
+
         for callback in self.callbacks:
             callback.on_start(self, state)
 
@@ -106,6 +108,8 @@ class Trainer:
                             )
 
                     train_metrics = {key: value / num_train_batches for key, value in train_metrics.items()}
+
+                    assert state is not None
 
                     val_metrics: Dict[str, float] = {}
                     if val_dataset is not None and self.val_dataloader is not None:
