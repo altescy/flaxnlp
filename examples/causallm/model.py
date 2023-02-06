@@ -13,7 +13,7 @@ from flaxnlp.modules.token_embedders.embedding import Embedding
 Array = Any
 
 
-class GPT(Model):
+class CausalLM(Model):
     required_rngkeys: ClassVar = {"dropout"}
 
     vocab_size: int

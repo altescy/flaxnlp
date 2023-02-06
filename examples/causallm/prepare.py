@@ -6,8 +6,7 @@ from pathlib import Path
 from typing import Iterable, Iterator
 
 import colt
-from collatable.extras.dataset import Dataset
-from datautil import GptDataModule
+from datautil import CausalLMDataModule
 
 logger = logging.getLogger(__name__)
 
@@ -51,7 +50,7 @@ def main() -> None:
         dataset = DatasetGenerator()
     else:
         dataset = DatasetReader(args.from_file)
-    datamodule = colt.build(config["datamodule"], GptDataModule)
+    datamodule = colt.build(config["datamodule"], CausalLMDataModule)
     datamodule.read_dataset(dataset, train=True, path=args.output / "dataset")
 
     logger.info("Saving datamodule to %s", args.output)

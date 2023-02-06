@@ -6,17 +6,17 @@ from pathlib import Path
 import collatable
 import colt
 import jax
-from datautil import GptDataModule
+from datautil import CausalLMDataModule
 from flax.training import checkpoints
-from model import GPT
+from model import CausalLM
 
 from flaxnlp.training.trainer import Trainer
 
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--config", type=Path, default=Path("config.json"))
     parser.add_argument("--artifact", type=Path, default=Path("output"))
+    parser.add_argument("--config", type=Path, default=None)
     parser.add_argument("--checkpoint", type=Path, default=None)
     parser.add_argument("--datamodule", type=Path, default=None)
     parser.add_argument("--topk", type=int, default=None)
@@ -32,10 +32,10 @@ def main() -> None:
         config = json.load(jsonfile)
 
     print("Loading datmodule...")
-    datamodule = GptDataModule.load(datamodule_filename)
+    datamodule = CausalLMDataModule.load(datamodule_filename)
 
-    print("Loading model...")
-    model = colt.build(config["model"], colt.Lazy[GPT]).construct(vocab_size=datamodule.vocab_size)
+    print(f"Loading model from {checkpoint_filename}...")
+    model = colt.build(config["model"], colt.Lazy[CausalLM]).construct(vocab_size=datamodule.vocab_size)
     state = checkpoints.restore_checkpoint(ckpt_dir=checkpoint_filename, target=None)
 
     assert datamodule.token_indexer is not None

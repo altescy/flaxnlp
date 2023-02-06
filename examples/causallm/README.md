@@ -1,4 +1,4 @@
-# TinyGPT Example
+# Causal Language Model Example
 
 Setup:
 

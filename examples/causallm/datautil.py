@@ -1,6 +1,6 @@
 import pickle
 from os import PathLike
-from typing import Any, Dict, Iterable, List, Optional, Sequence, Union
+from typing import Any, Iterable, List, Optional, Sequence, Union
 
 import colt
 from collatable import Instance, TextField
@@ -43,7 +43,7 @@ class SingleIdTokenIndexer(TokenIndexerBuilder):  # type: ignore[misc]
         return TokenIndexer.from_documents(documents, **self.kwargs)
 
 
-class GptDataModule:
+class CausalLMDataModule:
     def __init__(
         self,
         tokenizer: Tokenizer,
@@ -94,7 +94,7 @@ class GptDataModule:
             pickle.dump(self, f)
 
     @classmethod
-    def load(cls, filename: Union[str, PathLike]) -> "GptDataModule":
+    def load(cls, filename: Union[str, PathLike]) -> "CausalLMDataModule":
         with open(filename, "rb") as f:
             datamodule = pickle.load(f)
             assert isinstance(datamodule, cls)

@@ -15,7 +15,7 @@
     "dropout": 0.2
   },
   "trainer": {
-    "max_epochs": 200,
+    "max_epochs": 10,
     "train_dataloader": {
       "@type": "flaxnlp.data.DataLoader",
       "collate_fn": {
