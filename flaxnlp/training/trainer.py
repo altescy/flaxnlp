@@ -16,7 +16,7 @@ logger = getLogger(__name__)
 Array = Any
 
 
-class TrainState(train_state.TrainState):  # type: ignore[misc]
+class TrainState(train_state.TrainState):  # type: ignore[misc,no-untyped-call]
     training_steps: int = 0
 
 
@@ -64,7 +64,7 @@ class Trainer:
             (loss, output), grads = grad_fn(state.params)
             state = state.apply_gradients(grads=grads)  # type: ignore[no-untyped-call]
             state = state.replace(
-                params=FrozenDict({**state.params, **output.pop("__mutables__")}),
+                params=FrozenDict({**state.params, **output.pop("__mutables__")}),  # type: ignore[no-untyped-call]
                 training_steps=state.training_steps + 1,
             )
             return state, output
