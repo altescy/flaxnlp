@@ -4,13 +4,10 @@ version = "0.1.0"
 description = ""
 authors = ["altescy <altescy@fastmail.com>"]
 
-[[tool.poetry.source]]
-name = "jaxcuda"
-url = "https://storage.googleapis.com/jax-releases/jax_cuda_releases.html"
-
 [tool.poetry.dependencies]
 python = ">=3.8,<3.11"
 jax = {version = "^0.4.3", optional = true}
+flax = "^0.6.4"
 transformers = {version = "^4.25.1", optional = true}
 tensorflow = {version = "^2.11.0", markers = "sys_platform != 'darwin'"}
 tensorflow-macos = {version = "^2.11.0", markers = "sys_platform == 'darwin'"}
@@ -25,8 +22,8 @@ flake8 = "^5.0.4"
 mypy = "^0.981"
 
 [tool.poetry.extras]
-cpu = ["jax[cpu]"]
-cuda = ["jax[cuda]"]
+cpu = ["jax[cpu] -f https://storage.googleapis.com/jax-releases/jax_releases.html"]
+cuda = ["jax[cuda] -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html"]
 transformers = ["transformers"]
 
 [tool.poetry.group.dev.dependencies]
