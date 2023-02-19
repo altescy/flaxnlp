@@ -25,7 +25,7 @@
   "trainer": {
     "max_epochs": 4,
     "train_dataloader": {
-      "@type": "collatable.extras.dataloader.DataLoader",
+      "@type": "flaxnlp.data.DataLoader",
       "collate_fn": {
         "@type": "collatable.Collator"
       },

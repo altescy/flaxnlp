@@ -2,7 +2,6 @@ from typing import Any, ClassVar, Dict, Optional
 
 import flax
 import jax
-import numpy
 import optax
 
 from flaxnlp.models.model import Model
@@ -14,7 +13,7 @@ Array = Any
 
 
 class CausalLM(Model):
-    required_rngkeys: ClassVar = {"dropout"}
+    rngkeys: ClassVar = {"dropout"}
 
     vocab_size: int
     embedding_dim: int = 64

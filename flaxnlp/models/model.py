@@ -8,7 +8,8 @@ Array = Any
 
 
 class Model(abc.ABC, flax.linen.Module):
-    required_rngkeys: ClassVar[Set[str]] = set()
+    rngkeys: ClassVar[Set[str]] = set()
+    mutables: ClassVar[Set[str]] = set()
 
     @abc.abstractmethod
     def __call__(
@@ -46,7 +47,7 @@ class Model(abc.ABC, flax.linen.Module):
         additional_keys: Optional[Set[str]] = None,
     ) -> Tuple[Any, Dict[str, Any]]:
         additional_keys = additional_keys or set()
-        required_rngkeys = list(self.required_rngkeys | additional_keys)
+        required_rngkeys = list(self.rngkeys | additional_keys)
 
         if not train:
             if "dropout" in required_rngkeys:

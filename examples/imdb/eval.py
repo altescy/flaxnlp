@@ -52,7 +52,7 @@ def main() -> None:
         vocab_size=datamodule.vocab_size,
         num_classes=datamodule.num_classes,
     )
-    state = checkpoints.restore_checkpoint(ckpt_dir=args.checkpoint, target=None)
+    state = checkpoints.restore_checkpoint(ckpt_dir=str(args.checkpoint), target=None)
 
     logger.info("Loading dataset...")
     test_dataset = datamodule.read_dataset(datasets.load_dataset("imdb", split=args.subset))

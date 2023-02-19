@@ -3,7 +3,8 @@ from typing import Any, Callable, Dict, Iterator, Optional, Sequence, Tuple, cas
 
 import jax
 import optax
-from flax.training.train_state import TrainState
+from flax.core.frozen_dict import FrozenDict
+from flax.training import train_state
 from tqdm.auto import tqdm
 
 from flaxnlp.models.model import Model
@@ -13,6 +14,10 @@ from flaxnlp.training.exceptions import StopEarly
 logger = getLogger(__name__)
 
 Array = Any
+
+
+class TrainState(train_state.TrainState):  # type: ignore[misc]
+    training_steps: int = 0
 
 
 class Trainer:
@@ -43,14 +48,36 @@ class Trainer:
 
         @jax.jit
         def train_step(rngs: Any, state: TrainState, inputs: Dict[str, Any]) -> Tuple[TrainState, Array]:
-            def loss_fn(variables: Any) -> Array:
-                output = state.apply_fn(variables=variables, rngs=rngs, train=True, **inputs)
-                return output["loss"]
+            def loss_fn(variables: Any) -> Tuple[Array, Dict[str, Any]]:
+                mutable = list(model.mutables)
+                output, mutables = state.apply_fn(
+                    variables=variables,
+                    rngs=rngs,
+                    train=True,
+                    mutable=mutable,
+                    **inputs,
+                )
+                output["__mutables__"] = mutables
+                return output["loss"], output
 
-            grad_fn = jax.value_and_grad(loss_fn)
-            loss, grads = grad_fn(state.params)
+            grad_fn = jax.value_and_grad(loss_fn, has_aux=True)
+            (loss, output), grads = grad_fn(state.params)
             state = state.apply_gradients(grads=grads)  # type: ignore[no-untyped-call]
-            return state, loss
+            state = state.replace(
+                params=FrozenDict({**state.params, **output.pop("__mutables__")}),
+                training_steps=state.training_steps + 1,
+            )
+            return state, output
+
+        @jax.jit
+        def val_step(state: TrainState, inputs: Dict[str, Any]) -> Dict[str, Any]:
+            output = state.apply_fn(
+                variables=state.params,
+                rngs=rngs,
+                train=False,
+                **inputs,
+            )
+            return cast(Dict[str, Any], output)
 
         if state is None:
             rngs, init_rngs = model.split_rngs(rngs, additional_keys={"params"}, train=True)
@@ -84,11 +111,9 @@ class Trainer:
                         for inputs in trainbar:
                             num_train_batches += 1
                             rngs, train_rngs = model.split_rngs(rngs, train=True)
-                            state, loss = train_step(train_rngs, state, inputs)
+                            state, output = train_step(train_rngs, state, inputs)
 
-                            training_step += 1
-
-                            batch_metrics = {"loss": loss}
+                            batch_metrics = {"loss": output["loss"], **output.get("metrics", {})}
                             for key, value in batch_metrics.items():
                                 train_metrics[key] = train_metrics.get(key, 0) + value
 
@@ -97,7 +122,7 @@ class Trainer:
                                     trainer=self,
                                     train_state=state,
                                     batch_inputs=inputs,
-                                    batch_outputs={"loss": loss},
+                                    batch_outputs=output,
                                     epoch=epoch,
                                     training_step=training_step,
                                     is_training=True,
@@ -119,8 +144,8 @@ class Trainer:
                             for batch in valbar:
                                 num_val_batches += 1
                                 rngs, val_rngs = model.split_rngs(rngs, train=False)
-                                outputs = state.apply_fn(variabls=state.params, train=False, **batch)
-                                batch_metrics = {"loss": outputs["loss"], **outputs.get("metrics", {})}
+                                output = val_step(state, batch)
+                                batch_metrics = {"loss": output["loss"], **output.get("metrics", {})}
                                 for key, value in batch_metrics.items():
                                     val_metrics[key] = val_metrics.get(key, 0) + value
 
@@ -129,7 +154,7 @@ class Trainer:
                                         trainer=self,
                                         train_state=state,
                                         batch_inputs=batch,
-                                        batch_outputs=outputs,
+                                        batch_outputs=output,
                                         epoch=epoch,
                                         training_step=training_step,
                                         is_training=False,

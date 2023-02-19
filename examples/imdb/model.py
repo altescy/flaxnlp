@@ -15,7 +15,8 @@ Array = Any
 
 
 class TextClassifier(Model):  # type: ignore[misc]
-    required_rngkeys: ClassVar = {"dropout"}
+    rngkeys: ClassVar = {"dropout"}
+    mutables = {"batch_stats"}
 
     vocab_size: int
     num_classes: int
@@ -35,6 +36,7 @@ class TextClassifier(Model):  # type: ignore[misc]
         self.embedder = self.embedder_config.construct(num_embeddings=self.vocab_size)
         self.vectorizer = self.vectorizer_config.construct()
         self.classifier = flax.linen.Dense(self.num_classes)  # type: ignore[no-untyped-call]
+        self.batch_norm = flax.linen.BatchNorm(use_bias=False, use_scale=False)  # type: ignore[no-untyped-call]
         self.dropout_layer = flax.linen.Dropout(rate=self.dropout)  # type: ignore[no-untyped-call]
         self.contextualizer = None
         if self.contextualizer_config is not None:
@@ -53,6 +55,7 @@ class TextClassifier(Model):  # type: ignore[misc]
         if self.contextualizer is not None:
             embeddings = self.contextualizer(embeddings, mask, deterministic=deterministic)
         encodings = self.vectorizer(embeddings, mask, deterministic=deterministic)
+        encodings = self.batch_norm(encodings, use_running_average=not train)
         logits = self.classifier(self.dropout_layer(encodings, deterministic=deterministic))
         output = {"logits": logits}
         if label is not None:
