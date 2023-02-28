@@ -99,7 +99,6 @@ class Trainer:
         for callback in self.callbacks:
             callback.on_start(self, state)
 
-        training_step = 0
         try:
             with tqdm(range(1, self.max_epochs + 1), position=0) as epochbar:
                 for epoch in epochbar:
@@ -124,7 +123,6 @@ class Trainer:
                                     batch_inputs=inputs,
                                     batch_outputs=output,
                                     epoch=epoch,
-                                    training_step=training_step,
                                     is_training=True,
                                 )
 
@@ -156,7 +154,6 @@ class Trainer:
                                         batch_inputs=batch,
                                         batch_outputs=output,
                                         epoch=epoch,
-                                        training_step=training_step,
                                         is_training=False,
                                     )
 

@@ -23,7 +23,6 @@ class Callback:
         batch_inputs: Dict[str, Any],
         batch_outputs: Dict[str, Any],
         epoch: int,
-        training_step: int,
         is_training: bool,
     ) -> None:
         pass
