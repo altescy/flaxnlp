@@ -20,26 +20,6 @@ class Model(abc.ABC, flax.linen.Module):
     ) -> Dict[str, Any]:
         raise NotImplementedError
 
-    def compute_loss(
-        self,
-        *args: Any,
-        train: bool = False,
-        **kwargs: Any,
-    ) -> Array:
-        outputs = self(*args, train=train, **kwargs)
-        loss = outputs["loss"]
-        return outputs, loss
-
-    def compute_metrics(
-        self,
-        *args: Any,
-        train: bool = False,
-        **kwargs: Any,
-    ) -> Dict[str, float]:
-        outputs = self(*args, train=train, **kwargs)
-        metrics: Dict[str, float] = outputs["metrics"]
-        return metrics
-
     def split_rngs(
         self,
         rngs: Any,
