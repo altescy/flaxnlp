@@ -11,6 +11,7 @@ flax = "^0.6.4"
 transformers = {version = "^4.25.1", optional = true}
 tensorflow = {version = "^2.11.0", markers = "sys_platform != 'darwin'"}
 tensorflow-macos = {version = "^2.11.0", markers = "sys_platform == 'darwin'"}
+tqdm = "^4.64.1"
 
 [tool.poetry.dev-dependencies]
 python-language-server = "^0.36.2"

@@ -2485,7 +2485,7 @@ name = "tqdm"
 version = "4.64.1"
 description = "Fast, Extensible Progress Meter"
 category = "main"
-optional = true
+optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,>=2.7"
 files = [
     {file = "tqdm-4.64.1-py2.py3-none-any.whl", hash = "sha256:6fee160d6ffcd1b1c68c65f14c829c22832bc401726335ce92c52d395944a6a1"},
@@ -2824,4 +2824,4 @@ transformers = ["transformers"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<3.11"
-content-hash = "e6f6b3ef94d611b269baac12c999b0d5688b1c4ee7fbee2657aa7f148e9735ad"
+content-hash = "a630b2ee541e0f50179f67bb038e6c56ceef1f41e0fffa82789456404bd28447"
