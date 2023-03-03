@@ -59,7 +59,7 @@ def main() -> None:
 
     logger.info("Start evaluation...")
     accuracy = Accuracy()
-    dataloader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False, drop_last=False)
+    dataloader = DataLoader(batch_size=args.batch_size, shuffle=False, drop_last=False)(test_dataset)
     for b, batch in enumerate(dataloader, start=1):
         output = classifier.apply(variables=state["params"], train=False, **batch)
         logits = output["logits"]
