@@ -1,15 +1,17 @@
 import abc
 from typing import Any, ClassVar, Dict, Optional, Set, Tuple
 
+import colt
 import flax
 import jax
 
 Array = Any
 
 
-class Model(abc.ABC, flax.linen.Module):
+class Model(abc.ABC, flax.linen.Module, colt.Registrable):
     rngkeys: ClassVar[Set[str]] = set()
     mutables: ClassVar[Set[str]] = set()
+    default_training_module: ClassVar[str] = "default"
 
     @abc.abstractmethod
     def __call__(

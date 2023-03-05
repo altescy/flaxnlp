@@ -1,6 +1,8 @@
+import abc
 from logging import getLogger
 from typing import Any, Callable, Dict, Iterator, Optional, Sequence, Set, Tuple, cast
 
+import colt
 import flax
 import jax
 import optax
@@ -9,13 +11,13 @@ from flax.training import train_state
 from flax.training.common_utils import shard, shard_prng_key
 from tqdm.auto import tqdm
 
-from flaxnlp.models.model import Model
 from flaxnlp.training.callbacks import Callback
 from flaxnlp.training.exceptions import StopEarly
 
 logger = getLogger(__name__)
 
 Array = Any
+Model = Any
 
 
 class TrainState(train_state.TrainState):  # type: ignore[misc,no-untyped-call]
@@ -27,7 +29,36 @@ class TrainState(train_state.TrainState):  # type: ignore[misc,no-untyped-call]
         return cast("TrainState", flax.jax_utils.replicate(self).replace(rngs={k: shard_prng_key(v) for k, v in self.rngs.items()}))  # type: ignore[no-untyped-call]
 
 
-class TrainingModule:
+class TrainingModule(abc.ABC, colt.Registrable):
+    @abc.abstractmethod
+    def create_state(
+        self,
+        rngs: Any,
+        trainer: "Trainer",
+        model: Model,
+        inputs: Dict[str, Any],
+    ) -> TrainState:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def train_step(
+        self,
+        state: TrainState,
+        inputs: Dict[str, Any],
+    ) -> Tuple[TrainState, Array]:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def eval_step(
+        self,
+        state: TrainState,
+        inputs: Dict[str, Any],
+    ) -> Dict[str, Any]:
+        raise NotImplementedError
+
+
+@TrainingModule.register("default")
+class DefaultTrainingModule(TrainingModule):
     def create_state(
         self,
         rngs: Any,
@@ -100,7 +131,7 @@ class Trainer:
         val_dataloader: Optional[Callable[[Sequence], Iterator[Dict[str, Any]]]] = None,
         optimizer: optax.GradientTransformation = optax.adamw(1e-3),
         max_epochs: int = 10,
-        training_module: TrainingModule = TrainingModule(),
+        training_module: Optional[TrainingModule] = None,
         callbacks: Optional[Sequence[Callback]] = None,
     ) -> None:
         self.train_dataloader = train_dataloader
@@ -120,6 +151,9 @@ class Trainer:
     ) -> TrainState:
         if val_dataset is not None and self.val_dataloader is None:
             raise ValueError("val_dataloader must be provided if val_dataset is provided")
+
+        if self.training_module is None:
+            self.training_module = TrainingModule.by_name(model.default_training_module)()
 
         if init_state is None:
             state = self.training_module.create_state(
@@ -152,7 +186,6 @@ class Trainer:
                             inputs = shard(inputs)  # type: ignore[no-untyped-call]
 
                             num_train_batches += 1
-                            rngs, train_rngs = model.split_rngs(rngs, train=True)
                             state, output = p_train_step(state, inputs)
 
                             batch_metrics = {"loss": output["loss"], **output.get("metrics", {})}
