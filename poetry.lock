@@ -880,6 +880,7 @@ files = [
 ]
 
 [package.dependencies]
+jaxlib = {version = "0.4.4", optional = true, markers = "extra == \"cpu\""}
 numpy = ">=1.20"
 opt_einsum = "*"
 scipy = ">=1.5"
@@ -2824,4 +2825,4 @@ transformers = ["transformers"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<3.11"
-content-hash = "1264f57f7e666bf66cd919921a3235be59e309badfc368463f3f3560b6618499"
+content-hash = "cc893ac0cccdc7f177314b4d736e2fbbdb1a3a76e8403921a51d24a71227930c"
