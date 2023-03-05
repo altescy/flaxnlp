@@ -5,7 +5,7 @@ import numpy
 from collatable import Field, Instance, TensorField, TextField
 
 from flaxnlp.data import Dataset
-from flaxnlp.integrations.transformers.tokenizer import TransformersTokenizer
+from flaxnlp.integrations.transformers.tokenizers import TransformersTokenizer
 
 Array = Any
 
