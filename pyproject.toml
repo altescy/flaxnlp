@@ -21,7 +21,7 @@ black = "^22.8.0"
 isort = "^5.10.1"
 flake8 = "^5.0.4"
 mypy = "^0.981"
-jaxlib = "*"
+jaxlib = {version = "*", extras = ["cpu"]}
 
 [tool.poetry.extras]
 transformers = ["transformers"]
