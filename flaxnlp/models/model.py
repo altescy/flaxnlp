@@ -1,15 +1,17 @@
 import abc
 from typing import Any, ClassVar, Dict, Optional, Set, Tuple
 
+import colt
 import flax
 import jax
 
 Array = Any
 
 
-class Model(abc.ABC, flax.linen.Module):
+class Model(abc.ABC, flax.linen.Module, colt.Registrable):
     rngkeys: ClassVar[Set[str]] = set()
     mutables: ClassVar[Set[str]] = set()
+    default_training_module: ClassVar[str] = "default"
 
     @abc.abstractmethod
     def __call__(
@@ -19,26 +21,6 @@ class Model(abc.ABC, flax.linen.Module):
         **kwargs: Any,
     ) -> Dict[str, Any]:
         raise NotImplementedError
-
-    def compute_loss(
-        self,
-        *args: Any,
-        train: bool = False,
-        **kwargs: Any,
-    ) -> Array:
-        outputs = self(*args, train=train, **kwargs)
-        loss = outputs["loss"]
-        return outputs, loss
-
-    def compute_metrics(
-        self,
-        *args: Any,
-        train: bool = False,
-        **kwargs: Any,
-    ) -> Dict[str, float]:
-        outputs = self(*args, train=train, **kwargs)
-        metrics: Dict[str, float] = outputs["metrics"]
-        return metrics
 
     def split_rngs(
         self,
