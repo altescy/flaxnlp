@@ -30,6 +30,7 @@ jaxlib = "*"
 
 [tool.poetry.extras]
 transformers = ["transformers"]
+all = ["transformers"]
 
 [tool.poetry.group.dev.dependencies]
 setuptools = "^65.6.3"
