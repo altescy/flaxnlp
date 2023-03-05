@@ -254,6 +254,21 @@ files = [
 colorama = {version = "*", markers = "platform_system == \"Windows\""}
 
 [[package]]
+name = "collatable"
+version = "0.3.1"
+description = "Constructing batched tensors for any machine learning tasks"
+category = "main"
+optional = false
+python-versions = ">=3.8.1,<4.0"
+files = [
+    {file = "collatable-0.3.1-py3-none-any.whl", hash = "sha256:d16464a1f1314b8304212e98819016bbc87bd6c0f1bda10adb614f9c19bd61f1"},
+    {file = "collatable-0.3.1.tar.gz", hash = "sha256:41fda2ee649c819bfced1e3ee3bf3e22442c8efa22eedef679f687c807829ca5"},
+]
+
+[package.dependencies]
+numpy = ">=1.0.0,<2.0.0"
+
+[[package]]
 name = "colorama"
 version = "0.4.6"
 description = "Cross-platform colored terminal text."
@@ -279,6 +294,18 @@ files = [
 
 [package.dependencies]
 colorama = {version = "*", markers = "sys_platform == \"win32\""}
+
+[[package]]
+name = "colt"
+version = "0.9.2"
+description = "A configuration utility for Python object."
+category = "main"
+optional = false
+python-versions = ">=3.8,<4.0"
+files = [
+    {file = "colt-0.9.2-py3-none-any.whl", hash = "sha256:fa6e90e79e0989430f2a3a8b76b298bbd6d035d33a529a7c5f8d6deddf21265d"},
+    {file = "colt-0.9.2.tar.gz", hash = "sha256:1d01dca921d7bb949bcf2864d1203e417be9ac7dcc612386116e93ef50003dce"},
+]
 
 [[package]]
 name = "contourpy"
@@ -2823,5 +2850,5 @@ transformers = ["transformers"]
 
 [metadata]
 lock-version = "2.0"
-python-versions = ">=3.8,<3.11"
-content-hash = "535859c7ad3c3967a319e29fe784e052dc7708c37380880af5b2e85a10cd0789"
+python-versions = ">=3.8.1,<3.11"
+content-hash = "715fb58614dea8561513ba8e331291c177cb3199c12e80b4cbac486d30ff7fa4"
