@@ -17,6 +17,7 @@ tensorflow-macos = {version = "^2.11.0", markers = "sys_platform == 'darwin'"}
 tqdm = "^4.64.1"
 colt = "^0.9.2"
 collatable = "^0.3.1"
+jsonnet = "^0.19.1"
 
 [tool.poetry.dev-dependencies]
 python-language-server = "^0.36.2"
